@@ -1,14 +1,18 @@
 # NextF1 API
 
 ## Overview
-The NextF1 API provides access to the upcoming Formula 1 events, allowing users to fetch details about practice sessions, qualifying rounds, sprints, and races. This API is built using Python and utilizes the FastAPI framework for handling requests.
+The NextF1 API is primarily made to simply get the where, date and time to sessions for the next race weekend. Will probably expand later. Built using Python and utilizes the Flask framework for handling requests, Fast-F1 library for data.
+F1 clock hanged on the wall?
 
 ## Project Structure
 ```
 NextF1-API
 ├── src
-│   ├── main.py          # Main logic for fetching and displaying F1 events
-│   ├── api.py           # API endpoints for accessing event data
+│   ├── main.py          # Main entry point for the Flask application
+│   ├── routes
+│   │   └── events.py    # Blueprint for handling event-related routes
+│   ├── services
+│   │   └── events_service.py  # Business logic for event-related operations
 │   └── utils
 │       └── __init__.py  # Utility functions and classes
 ├── requirements.txt      # Project dependencies
@@ -16,14 +20,14 @@ NextF1-API
 ├── .gitignore             # Files and directories to ignore in Git
 ├── README.md              # Project documentation
 └── tests
-    └── test_api.py       # Unit tests for the API
+    └── test_events.py    # Unit tests for the events blueprint
 ```
 
 ## Setup Instructions
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/NextF1-API.git
+   git clone https://github.com/0hscar/NextF1-API.git
    cd NextF1-API
    ```
 
@@ -40,23 +44,26 @@ NextF1-API
 
 4. **Run the Application**
    ```bash
-   uvicorn src.api:app --reload
+   python src/main.py
    ```
 
 ## Usage
-Once the application is running, you can access the API at `http://127.0.0.1:8000`. The following endpoints are available:
+Once the application is running, you can access the API at `http://127.0.0.1:5000`. The following endpoint is available:
 
-- **GET /events**: Retrieve a list of upcoming F1 events.
-- **GET /events/{event_id}**: Retrieve details for a specific event.
+- **GET /events/next**: Retrieve date & time to the next F1 weekends events. 
+- More to come.
+
+
 
 ## Testing
 To run the tests, ensure your virtual environment is activated and execute:
 ```bash
-pytest tests/test_api.py
+pytest tests/test_events.py
 ```
 
 ## Docker
 To build and run the application in a Docker container, use the following commands:
+NOTE: NOT TESTED
 
 1. **Build the Docker Image**
    ```bash
@@ -65,8 +72,14 @@ To build and run the application in a Docker container, use the following comman
 
 2. **Run the Docker Container**
    ```bash
-   docker run -p 8000:8000 nextf1-api
+   docker run -p 5000:5000 nextf1-api
    ```
+
+3. **Alternatively run docker-compose**
+   ```bash
+   docker-compose up --build
+   ```
+
 
 ## Contributing
 Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.

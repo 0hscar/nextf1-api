@@ -26,7 +26,7 @@ filtered_schedule = df[library.values()]
 
 def get_next_event():
     current_time = datetime.now().astimezone()
-    upcoming_events = filtered_schedule[filtered_schedule["Session1Date"] > current_time]
+    upcoming_events = filtered_schedule[filtered_schedule["Session5Date"] > current_time]
 
     if not upcoming_events.empty:
         next_upcoming_event = upcoming_events.iloc[0]
@@ -38,10 +38,18 @@ def get_next_event():
             ("Session4", "Session4Date"),
             ("Session5", "Session5Date"),
         ]:
-            if pd.notna(next_upcoming_event[session_date]) and next_upcoming_event[session_date] > current_time:
-                event_details[session] = {
-                    "date": next_upcoming_event[session_date].isoformat(),
-                    "time_until_event": str(next_upcoming_event[session_date] - current_time),
-                }
+            if pd.notna(next_upcoming_event[session_date]):
+                if next_upcoming_event[session_date] > current_time:
+                    event_details[session] = {
+                        "date": next_upcoming_event[session_date].isoformat(),
+                        "time_until_event": str(next_upcoming_event[session_date] - current_time),
+                        "status": "upcoming",
+                    }
+                else:
+                    event_details[session] = {
+                        "date": next_upcoming_event[session_date].isoformat(),
+                        "status": "completed",
+                    }
+        print(type(event_details))
         return event_details
     return None

@@ -11,8 +11,12 @@ library = {
     "Country": "Country",
     "Practice 1": "Session1",
     "P1 Date": "Session1Date",
+    "Practice 2": "Session2",
+    "Practice 2 Date": "Session2Date",
     "Sprint Qualifying": "Session2",
     "Sprint Qualifying Date": "Session2Date",
+    "Practice 3": "Session3",
+    "Practice 3 Date": "Session3Date",
     "Sprint": "Session3",
     "Sprint Date": "Session3Date",
     "Qualifying": "Session4",
@@ -24,19 +28,27 @@ library = {
 # Filter the schedule based on the library mapping
 filtered_schedule = df[library.values()]
 
+# For testing
+custom_time = datetime.now().astimezone() + pd.Timedelta(weeks=3)
+
+
 def get_next_event():
     current_time = datetime.now().astimezone()
-    upcoming_events = filtered_schedule[filtered_schedule["Session5Date"] > current_time]
+
+    # TESTING
+    # upcoming_events = df[df["Session5Date"] > custom_time]
+    
+    upcoming_events = df[df["Session5Date"] > current_time]
 
     if not upcoming_events.empty:
         next_upcoming_event = upcoming_events.iloc[0]
         event_details = {}
         for session, session_date in [
-            ("Session1", "Session1Date"),
-            ("Session2", "Session2Date"),
-            ("Session3", "Session3Date"),
-            ("Session4", "Session4Date"),
-            ("Session5", "Session5Date"),
+            (next_upcoming_event["Session1"], "Session1Date"),
+            (next_upcoming_event["Session2"], "Session2Date"),
+            (next_upcoming_event["Session3"], "Session3Date"),
+            (next_upcoming_event["Session4"], "Session4Date"),
+            (next_upcoming_event["Session5"], "Session5Date"),
         ]:
             if pd.notna(next_upcoming_event[session_date]):
                 if next_upcoming_event[session_date] > current_time:
@@ -50,6 +62,5 @@ def get_next_event():
                         "date": next_upcoming_event[session_date].isoformat(),
                         "status": "completed",
                     }
-        print(type(event_details))
         return event_details
     return None

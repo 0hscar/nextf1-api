@@ -42,7 +42,7 @@ def get_next_event():
 
     if not upcoming_events.empty:
         next_upcoming_event = upcoming_events.iloc[0]
-        event_details = {}
+        event_details = {} 
         for session, session_date in [
             (next_upcoming_event["Session1"], "Session1Date"),
             (next_upcoming_event["Session2"], "Session2Date"),
@@ -51,16 +51,21 @@ def get_next_event():
             (next_upcoming_event["Session5"], "Session5Date"),
         ]:
             if pd.notna(next_upcoming_event[session_date]):
+                # # Add the session country
                 if next_upcoming_event[session_date] > current_time:
                     event_details[session] = {
                         "date": next_upcoming_event[session_date].isoformat(),
                         "time_until_event": str(next_upcoming_event[session_date] - current_time),
                         "status": "upcoming",
+                        "day": next_upcoming_event[session_date].strftime("%A"),
                     }
                 else:
                     event_details[session] = {
                         "date": next_upcoming_event[session_date].isoformat(),
+                        "day": next_upcoming_event[session_date].strftime("%A"),
                         "status": "completed",
                     }
+        # Add the event name and season
+        event_details["Country"] = next_upcoming_event["Country"] 
         return event_details
     return None

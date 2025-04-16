@@ -2,9 +2,21 @@ import pandas as pd
 from datetime import datetime
 import fastf1
 
-# Fetch the event schedule
-current_year = datetime.now().year
-df = pd.DataFrame(fastf1.get_event_schedule(current_year))
+_cached_schedule = None
+_cached_timestamp = None
+_CACHE_TTL = pd.Timedelta(days=1)  # Cache TTL of 1 day
+
+def get_schedule():
+    global _cached_schedule, _cached_timestamp
+    now = datetime.now()
+
+    if _cached_schedule is None or _cached_timestamp is None or now - _cached_timestamp > _CACHE_TTL:
+        current_year = now.year
+        _cached_schedule = pd.DataFrame(fastf1.get_event_schedule(current_year))
+        _cached_timestamp = now
+    return _cached_schedule
+
+
 
 # Define the mapping for session names
 library = {
@@ -20,52 +32,48 @@ library = {
     "Sprint": "Session3",
     "Sprint Date": "Session3Date",
     "Qualifying": "Session4",
-    "Qialifying Date": "Session4Date",
+    "Qualifying Date": "Session4Date",
     "Race": "Session5",
     "Race Date": "Session5Date",
 }
 
 # Filter the schedule based on the library mapping
-filtered_schedule = df[library.values()]
 
 # For testing
-custom_time = datetime.now().astimezone() + pd.Timedelta(weeks=3)
+# custom_time = datetime.now().astimezone() + pd.Timedelta(weeks=3)
 
 
 def get_next_event():
     current_time = datetime.now().astimezone()
-
-    # TESTING
-    # upcoming_events = df[df["Session5Date"] > custom_time]
-    
+    df = get_schedule()
     upcoming_events = df[df["Session5Date"] > current_time]
 
     if not upcoming_events.empty:
+        # This is a Series representing a single row
         next_upcoming_event = upcoming_events.iloc[0]
-        event_details = {} 
+        event_details = {}
         for session, session_date in [
-            (next_upcoming_event["Session1"], "Session1Date"),
-            (next_upcoming_event["Session2"], "Session2Date"),
-            (next_upcoming_event["Session3"], "Session3Date"),
-            (next_upcoming_event["Session4"], "Session4Date"),
-            (next_upcoming_event["Session5"], "Session5Date"),
+            (next_upcoming_event.get("Session1"), "Session1Date"),
+            (next_upcoming_event.get("Session2"), "Session2Date"),
+            (next_upcoming_event.get("Session3"), "Session3Date"),
+            (next_upcoming_event.get("Session4"), "Session4Date"),
+            (next_upcoming_event.get("Session5"), "Session5Date"),
         ]:
-            if pd.notna(next_upcoming_event[session_date]):
-                # # Add the session country
-                if next_upcoming_event[session_date] > current_time:
+            session_time = next_upcoming_event.get(session_date)
+            if pd.notna(session_time) and isinstance(session_time, pd.Timestamp):
+                if session_time > current_time:
                     event_details[session] = {
-                        "date": next_upcoming_event[session_date].isoformat(),
-                        "time_until_event": str(next_upcoming_event[session_date] - current_time),
+                        "date": session_time.isoformat(),
+                        "time_until_event": str(session_time - current_time),
                         "status": "upcoming",
-                        "day": next_upcoming_event[session_date].strftime("%A"),
+                        "day": session_time.strftime("%A"),
                     }
                 else:
                     event_details[session] = {
-                        "date": next_upcoming_event[session_date].isoformat(),
-                        "day": next_upcoming_event[session_date].strftime("%A"),
+                        "date": session_time.isoformat(),
+                        "day": session_time.strftime("%A"),
                         "status": "completed",
                     }
-        # Add the event name and season
-        event_details["Country"] = next_upcoming_event["Country"] 
+        event_details["Country"] = next_upcoming_event["Country"]
         return event_details
     return None

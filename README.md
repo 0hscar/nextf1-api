@@ -48,9 +48,11 @@ NextF1-API
    ```
 
 ## Usage
-Once the application is running, you can access the API at `http://127.0.0.1:5000`. The following endpoint is available:
+Once the application is running, you can access the API at `http://127.0.0.1:5000`. The following endpoints is available:
 
 - **GET /events/next**: Retrieve date & time to the next F1 weekends events. 
+- **GET /standings/constructors**: Retrieve constructors standings.
+- **GET /standings/driver**: Retrieve drivers standings.
 - More to come.
 
 
